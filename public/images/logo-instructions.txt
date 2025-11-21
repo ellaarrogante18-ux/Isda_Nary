@@ -1,0 +1,14 @@
+LOGO SETUP INSTRUCTIONS
+========================
+
+1. Save your IsdaNary logo image as: isdanary-logo.png
+2. Place it in this directory: c:\xampp\htdocs\fish_inventory\public\images\
+3. The logo should be in PNG format for best quality with transparency
+4. Recommended size: 200x200 pixels or larger (it will be automatically resized)
+
+The logo has been integrated into:
+- Welcome/Homepage (resources/views/welcome.blade.php)
+- Dashboard and all internal pages (resources/views/layouts/app.blade.php)
+- App name updated to "IsdaNary" in .env file
+
+Once you place the logo file, it will automatically appear throughout your application!

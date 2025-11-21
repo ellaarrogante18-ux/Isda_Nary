@@ -1,0 +1,27 @@
+# Virtual Host Setup Instructions for XAMPP
+
+## Step 1: Edit Apache Configuration
+File: C:\xampp\apache\conf\extra\httpd-vhosts.conf
+
+Add this at the end:
+<VirtualHost *:80>
+    DocumentRoot "c:/xampp/htdocs/fish_inventory/public"
+    ServerName fish-inventory.local
+    <Directory "c:/xampp/htdocs/fish_inventory/public">
+        AllowOverride All
+        Require all granted
+    </Directory>
+</VirtualHost>
+
+## Step 2: Edit Hosts File
+File: C:\Windows\System32\drivers\etc\hosts
+
+Add this line:
+127.0.0.1    fish-inventory.local
+
+## Step 3: Restart Apache in XAMPP
+
+## Step 4: Access via:
+http://fish-inventory.local
+
+This gives you clean URLs without /public/ in the path.
