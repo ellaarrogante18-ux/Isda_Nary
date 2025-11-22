@@ -1,50 +1,35 @@
-# Use official PHP with FPM
-FROM php:8.2-fpm
+FROM php:8.2-apache
 
-# System deps
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     git unzip curl libonig-dev libzip-dev zip libpng-dev libjpeg-dev libxml2-dev \
-    nginx supervisor procps \
     libfreetype6-dev libjpeg62-turbo-dev \
  && rm -rf /var/lib/apt/lists/*
 
-# PHP extensions
+# Configure PHP extensions
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg
 RUN docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd zip
 
-# Install composer
+# Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Set working dir
-WORKDIR /var/www
+# Set working directory
+WORKDIR /var/www/html
 
-# Copy app
-COPY . /var/www
+# Copy application files
+COPY . /var/www/html
 
-# Set composer configuration
-ENV COMPOSER_MEMORY_LIMIT=-1
-ENV COMPOSER_ALLOW_SUPERUSER=1
-
-# Debug composer install with verbose output
-RUN rm -f composer.lock
-RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress -vvv
+# Install dependencies
+RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress
 
 # Set permissions
-RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
-RUN chmod -R 775 /var/www/storage /var/www/bootstrap/cache
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+RUN chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Copy nginx config
-RUN rm -f /etc/nginx/sites-enabled/default
-COPY docker/nginx.conf /etc/nginx/sites-available/default
-RUN ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/
+# Enable Apache mod_rewrite
+RUN a2enmod rewrite
 
-# Supervisor to run php-fpm and nginx
-COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+# Copy Apache configuration
+COPY docker/apache.conf /etc/apache2/sites-available/000-default.conf
 
 EXPOSE 10000
-
-# Start script
-COPY docker/start.sh /start.sh
-RUN chmod +x /start.sh
-
-CMD [ "/start.sh" ]
