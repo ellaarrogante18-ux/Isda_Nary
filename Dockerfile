@@ -21,6 +21,13 @@ WORKDIR /var/www
 # Copy app
 COPY . /var/www
 
+# Create .env if missing and set up environment
+RUN if [ ! -f .env ]; then cp .env.example .env; fi
+
+# Install PHP dependencies
+RUN rm -f composer.lock
+RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress
+
 # Remove outdated lock file and install fresh dependencies
 RUN rm -f composer.lock
 RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress
