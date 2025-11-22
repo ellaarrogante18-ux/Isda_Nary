@@ -26,19 +26,15 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache || true
 RUN chmod -R 775 /var/www/storage /var/www/bootstrap/cache || true
 
-# Build assets if you use node (optional)
-# Uncomment the following lines if you have package.json and want to build assets inside the image
-# RUN apt-get update && apt-get install -y nodejs npm
-# RUN npm install && npm run build
-
-# Copy nginx config (we'll use simple static config)
-RUN rm /etc/nginx/sites-enabled/default
-COPY docker/nginx.conf /etc/nginx/sites-enabled/default
+# Copy nginx config
+RUN rm -f /etc/nginx/sites-enabled/default
+COPY docker/nginx.conf /etc/nginx/sites-available/default
+RUN ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/
 
 # Supervisor to run php-fpm and nginx
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-EXPOSE 80
+EXPOSE 10000  # Changed from 80 to 10000 for Render
 
 # Start script
 COPY docker/start.sh /start.sh
