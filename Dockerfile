@@ -1,5 +1,5 @@
 # Use official PHP with FPM
-FROM php:8.1-fpm
+FROM php:8.2-fpm
 
 # System deps
 RUN apt-get update && apt-get install -y \
@@ -21,14 +21,10 @@ WORKDIR /var/www
 # Copy app
 COPY . /var/www
 
-# Set composer configuration for better stability
-ENV COMPOSER_MEMORY_LIMIT=-1
-ENV COMPOSER_ALLOW_SUPERUSER=1
+# Remove outdated lock file and install fresh dependencies
+RUN rm -f composer.lock
+RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress
 
-# Install PHP dependencies with retry
-RUN composer clear-cache
-RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress || \
-    composer install --no-dev --optimize-autoloader --no-interaction --no-progress
 # Set permissions
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 RUN chmod -R 775 /var/www/storage /var/www/bootstrap/cache
@@ -36,7 +32,7 @@ RUN chmod -R 775 /var/www/storage /var/www/bootstrap/cache
 # Copy nginx config
 RUN rm -f /etc/nginx/sites-enabled/default
 COPY docker/nginx.conf /etc/nginx/sites-available/default
-RUN ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/
+RUN ln -s /etc/nginx/sites-available/default /etc-nginx/sites-enabled/
 
 # Supervisor to run php-fpm and nginx
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
