@@ -21,29 +21,22 @@ WORKDIR /var/www
 # Copy app
 COPY . /var/www
 
-# Create .env if missing and set up environment
-RUN if [ ! -f .env ]; then cp .env.example .env; fi
+# Set composer configuration
+ENV COMPOSER_MEMORY_LIMIT=-1
+ENV COMPOSER_ALLOW_SUPERUSER=1
 
-# Install PHP dependencies
+# Debug composer install with verbose output
 RUN rm -f composer.lock
-RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress
-
-# Remove outdated lock file and install fresh dependencies
-RUN rm -f composer.lock
-RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress
+RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress -vvv
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 RUN chmod -R 775 /var/www/storage /var/www/bootstrap/cache
 
-# Run artisan commands after permissions are set
-RUN php artisan config:clear || true
-RUN php artisan key:generate --force || true
-
 # Copy nginx config
 RUN rm -f /etc/nginx/sites-enabled/default
 COPY docker/nginx.conf /etc/nginx/sites-available/default
-RUN ln -s /etc/nginx/sites-available/default /etc-nginx/sites-enabled/
+RUN ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/
 
 # Supervisor to run php-fpm and nginx
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
