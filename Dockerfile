@@ -19,8 +19,11 @@ WORKDIR /var/www
 # Copy app
 COPY . /var/www
 
+# Clear stale Laravel cache before composer install
+RUN rm -rf bootstrap/cache/*
+
 # Install PHP dependencies
-RUN COMPOSER_MEMORY_LIMIT=-1 composer install --no-dev --optimize-autoloader --no-interaction
+RUN COMPOSER_MEMORY_LIMIT=-1 composer install --no-dev --optimize-autoloader --no-interaction --verbose
 
 # Set permissions (adjust as needed)
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache || true
