@@ -20,7 +20,7 @@ WORKDIR /var/www
 COPY . /var/www
 
 # Install PHP dependencies
-RUN composer install --no-dev --optimize-autoloader --no-interaction
+RUN COMPOSER_MEMORY_LIMIT=-1 composer install --no-dev --optimize-autoloader --no-interaction
 
 # Set permissions (adjust as needed)
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache || true
