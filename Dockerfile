@@ -34,7 +34,7 @@ RUN ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/
 # Supervisor to run php-fpm and nginx
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-EXPOSE 10000  # Changed from 80 to 10000 for Render
+EXPOSE 10000  # Fixed - no comments after the port number
 
 # Start script
 COPY docker/start.sh /start.sh
