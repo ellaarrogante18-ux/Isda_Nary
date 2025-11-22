@@ -6,9 +6,19 @@ mkdir -p storage bootstrap/cache
 chown -R www-data:www-data storage bootstrap/cache || true
 
 # Generate app key if missing
-if [ -z "$APP_KEY" ]; then
-  php artisan key:generate --force
+# Generate application key if missing
+if [ ! -f .env ]; then
+    cp .env.example .env
 fi
+
+php artisan key:generate --force
+
+# Clear and cache config
+php artisan config:clear
+php artisan config:cache
+
+# Run package discovery
+php artisan package:discover
 
 # Run migrations if requested
 if [ "$RUN_MIGRATIONS_ON_START" = "true" ]; then
